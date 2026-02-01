@@ -27,3 +27,15 @@
     @apply mt-2 text-sm uppercase tracking-[0.2em] text-slate-400;
   }
 }
+
+@layer utilities {
+  @keyframes floaty {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+}

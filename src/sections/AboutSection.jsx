@@ -7,8 +7,12 @@ export default function AboutSection({ profile }) {
           <h1 className="text-4xl font-semibold text-slate-900 dark:text-white sm:text-5xl">
             {profile.name}
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300">{profile.title}</p>
-          <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">{profile.location}</p>
+          <p className="text-lg text-slate-600 dark:text-slate-300">
+            {profile.title}
+          </p>
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-slate-400">
+            {profile.location}
+          </p>
           <div className="space-y-4 text-base leading-relaxed text-slate-600 dark:text-slate-300">
             {profile.summary.map((line) => (
               <p key={line}>{line}</p>
@@ -45,33 +49,38 @@ export default function AboutSection({ profile }) {
               RW
             </div>
             <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">Currently</p>
-              <p className="text-lg font-semibold text-slate-900 dark:text-white">{profile.title}</p>
+              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">
+                Currently
+              </p>
+              <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                {profile.title}
+              </p>
             </div>
           </div>
           <div className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
             <p>
-              Specialized in fintech mobile experiences, digital banking flows, and scalable backend services that
-              meet compliance standards.
+              Specialized in fintech mobile experiences, digital banking flows,
+              and scalable backend services that meet compliance standards.
             </p>
             <p>
-              Interested in cross-functional collaboration, clean architecture, and data-driven product decisions.
+              Interested in cross-functional collaboration, clean architecture,
+              and data-driven product decisions.
             </p>
           </div>
           <div className="grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
             <div className="flex items-center justify-between">
-              <span className="font-medium text-slate-900 dark:text-white">Focus Areas</span>
-              <span className="text-xs uppercase tracking-[0.2em] text-slate-400">2024</span>
+              <span className="font-medium text-slate-900 dark:text-white">
+                Focus Areas
+              </span>
             </div>
             <ul className="space-y-2">
-              <li>• Mobile trading experiences</li>
-              <li>• Secure payment workflows</li>
-              <li>• CI/CD release automation</li>
+              <li>• Mobile/Web/Backend Development</li>
+              <li>• Fintech and Investments</li>
+              <li>• AI and Automation</li>
             </ul>
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }
-
