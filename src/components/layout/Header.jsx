@@ -1,9 +1,13 @@
-import { Atom, Menu, X } from "lucide-react";
+import { Menu, Orbit, Sparkles, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 
-export default function Header({ name, navigation, themeToggle }) {
+export default function Header({ name, navigation, controls, variant = "revamp" }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [activeHref, setActiveHref] = useState(navigation[0]?.href || "#overview");
   const menuId = useId();
+  const homeHref = navigation[0]?.href || "#overview";
+  const isLegacy = variant === "legacy";
 
   useEffect(() => {
     if (!isOpen) return;
@@ -29,28 +33,153 @@ export default function Header({ name, navigation, themeToggle }) {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    const sectionIds = navigation
+      .map((item) => item.href)
+      .filter((href) => href.startsWith("#"));
+
+    const sections = sectionIds
+      .map((href) => document.querySelector(href))
+      .filter(Boolean);
+
+    const updateHeaderState = () => {
+      const scrollY = window.scrollY;
+      setIsScrolled(scrollY > 18);
+
+      let current = sectionIds[0] || homeHref;
+
+      sections.forEach((section) => {
+        const element = section;
+        if (!(element instanceof HTMLElement)) return;
+
+        const top = element.offsetTop - 140;
+        if (scrollY >= top) {
+          current = `#${element.id}`;
+        }
+      });
+
+      setActiveHref(current);
+    };
+
+    updateHeaderState();
+    window.addEventListener("scroll", updateHeaderState, { passive: true });
+
+    return () => window.removeEventListener("scroll", updateHeaderState);
+  }, [homeHref, navigation]);
+
+  if (isLegacy) {
+    return (
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-950/80">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          <a
+            href={homeHref}
+            className="group inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-indigo-500 shadow-soft transition hover:-translate-y-0.5 hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-800 dark:bg-slate-950"
+            aria-label={`${name} — Home`}
+            title={name}
+            onClick={() => setIsOpen(false)}
+          >
+            <Orbit
+              className="h-5 w-5 animate-[floaty_2.6s_ease-in-out_infinite] transition-transform duration-300 group-hover:rotate-12 motion-reduce:animate-none"
+              aria-hidden="true"
+            />
+          </a>
+          <div className="flex items-center gap-6">
+            <nav className="hidden items-center gap-5 text-sm font-medium text-slate-600 dark:text-slate-300 md:flex">
+              {navigation.map((item) => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="transition-colors hover:text-indigo-500"
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white p-2 text-slate-700 shadow-soft transition hover:-translate-y-0.5 hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 md:hidden"
+              aria-label={isOpen ? "Close menu" : "Open menu"}
+              aria-controls={menuId}
+              aria-expanded={isOpen}
+              onClick={() => setIsOpen((prev) => !prev)}
+            >
+              {isOpen ? (
+                <X className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <Menu className="h-5 w-5" aria-hidden="true" />
+              )}
+            </button>
+
+            <div className="hidden md:block">{controls}</div>
+          </div>
+        </div>
+
+        {isOpen ? (
+          <div className="md:hidden" id={menuId}>
+            <div
+              className="fixed inset-0 z-40 bg-white/55 backdrop-blur-sm dark:bg-slate-950/40"
+              aria-hidden="true"
+              onClick={() => setIsOpen(false)}
+            />
+            <div className="fixed inset-x-0 top-[72px] z-50 mx-auto w-full max-w-6xl px-6">
+              <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-800 dark:bg-slate-950">
+                <nav className="flex flex-col">
+                  {navigation.map((item) => (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-200 dark:hover:bg-slate-900"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </nav>
+                <div className="mt-2 border-t border-slate-200 pt-3 dark:border-slate-800">
+                  {controls}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </header>
+    );
+  }
+
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-950/80">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
+      <div
+        className={`mx-auto flex max-w-6xl items-center justify-between rounded-[1.35rem] px-4 py-3 backdrop-blur-xl transition-all duration-300 ${
+          isScrolled
+            ? "bg-white/82 shadow-[0_16px_40px_rgba(15,23,42,0.11)] dark:bg-slate-950/82"
+            : "bg-white/58 shadow-[0_12px_34px_rgba(15,23,42,0.07)] dark:bg-slate-950/58"
+        }`}
+      >
         <a
-          href="#about"
-          className="group inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-indigo-500 shadow-soft transition hover:-translate-y-0.5 hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-800 dark:bg-slate-950"
+          href={homeHref}
+          className="group relative inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-slate-950 text-white transition hover:-translate-y-0.5 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
           aria-label={`${name} — Home`}
           title={name}
           onClick={() => setIsOpen(false)}
         >
-          <Atom
-            className="h-5 w-5 animate-[floaty_2.6s_ease-in-out_infinite] transition-transform duration-300 group-hover:rotate-12 motion-reduce:animate-none"
+          <span className="absolute inset-0 rounded-2xl bg-[radial-gradient(circle_at_30%_30%,rgba(16,185,129,0.45),transparent_40%),radial-gradient(circle_at_70%_70%,rgba(56,189,248,0.32),transparent_44%)] opacity-90" />
+          <Orbit
+            className="relative z-10 h-4 w-4 animate-[floaty_2.8s_ease-in-out_infinite] transition-transform duration-300 group-hover:rotate-12 motion-reduce:animate-none"
             aria-hidden="true"
           />
         </a>
-        <div className="flex items-center gap-6">
-          <nav className="hidden items-center gap-5 text-sm font-medium text-slate-600 dark:text-slate-300 md:flex">
+        <div className="flex items-center gap-3 md:gap-5">
+          <nav className="hidden items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-300 md:flex">
             {navigation.map((item) => (
               <a
                 key={item.href}
                 href={item.href}
-                className="transition-colors hover:text-indigo-500"
+                className={`rounded-full px-4 py-2 transition ${
+                  activeHref === item.href
+                    ? "bg-white/90 text-slate-950 shadow-sm dark:bg-slate-900 dark:text-white"
+                    : "hover:bg-white/80 hover:text-emerald-700 dark:hover:bg-slate-900/80 dark:hover:text-emerald-300"
+                }`}
               >
                 {item.label}
               </a>
@@ -59,7 +188,7 @@ export default function Header({ name, navigation, themeToggle }) {
 
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white p-2 text-slate-700 shadow-soft transition hover:-translate-y-0.5 hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 md:hidden"
+            className="inline-flex items-center justify-center rounded-2xl bg-white/80 p-2.5 text-slate-700 shadow-soft transition hover:-translate-y-0.5 hover:text-emerald-700 dark:bg-slate-900/80 dark:text-slate-200 md:hidden"
             aria-label={isOpen ? "Close menu" : "Open menu"}
             aria-controls={menuId}
             aria-expanded={isOpen}
@@ -72,7 +201,7 @@ export default function Header({ name, navigation, themeToggle }) {
             )}
           </button>
 
-          <div className="hidden md:block">{themeToggle}</div>
+          <div className="hidden md:block">{controls}</div>
         </div>
       </div>
 
@@ -83,22 +212,30 @@ export default function Header({ name, navigation, themeToggle }) {
             aria-hidden="true"
             onClick={() => setIsOpen(false)}
           />
-          <div className="fixed inset-x-0 top-[72px] z-50 mx-auto w-full max-w-6xl px-6">
-            <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-xl dark:border-slate-800 dark:bg-slate-950">
+          <div className="fixed inset-x-0 top-[92px] z-50 mx-auto w-full max-w-6xl px-4 sm:px-6">
+            <div className="overflow-hidden rounded-[1.5rem] bg-white/92 p-3 shadow-[0_24px_80px_rgba(15,23,42,0.14)] backdrop-blur dark:bg-slate-950/92">
+              <div className="mb-2 flex items-center gap-2 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-300">
+                <Sparkles className="h-4 w-4 text-emerald-500" aria-hidden="true" />
+                Navigation
+              </div>
               <nav className="flex flex-col">
                 {navigation.map((item) => (
                   <a
                     key={item.href}
                     href={item.href}
-                    className="rounded-xl px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 hover:text-indigo-600 dark:text-slate-200 dark:hover:bg-slate-900"
+                    className={`rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                      activeHref === item.href
+                        ? "bg-slate-100 text-slate-950 dark:bg-slate-900 dark:text-white"
+                        : "text-slate-700 hover:bg-slate-50 hover:text-emerald-700 dark:text-slate-200 dark:hover:bg-slate-900 dark:hover:text-emerald-300"
+                    }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {item.label}
                   </a>
                 ))}
               </nav>
-              <div className="mt-2 border-t border-slate-200 pt-3 dark:border-slate-800">
-                {themeToggle}
+              <div className="mt-3 border-t border-slate-200/80 pt-3 dark:border-slate-800">
+                {controls}
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -10,6 +10,7 @@
   }
 
   body {
+    font-family: "Manrope", sans-serif;
     @apply bg-slate-50 text-slate-900 antialiased transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100;
   }
 
@@ -26,6 +27,40 @@
   .section-subtitle {
     @apply mt-2 text-sm uppercase tracking-[0.2em] text-slate-400;
   }
+
+  .reveal {
+    @apply translate-y-6 opacity-0 transition-all duration-700 ease-out;
+  }
+
+  .reveal.is-visible {
+    @apply translate-y-0 opacity-100;
+  }
+
+  .marquee-track {
+    display: inline-flex;
+    min-width: max-content;
+    animation: marquee 26s linear infinite;
+  }
+
+  .floating-card {
+    will-change: transform;
+  }
+
+  .floating-card-base {
+    animation: float-base 8s ease-in-out infinite;
+  }
+
+  .floating-card-top {
+    animation: float-top 7.5s ease-in-out infinite;
+  }
+
+  .floating-card-right {
+    animation: float-right 9s ease-in-out infinite;
+  }
+
+  .floating-card-bottom {
+    animation: float-bottom 8.5s ease-in-out infinite;
+  }
 }
 
 @layer utilities {
@@ -36,6 +71,72 @@
     }
     50% {
       transform: translateY(-3px);
+    }
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @keyframes float-base {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(0, -10px, 0);
+    }
+  }
+
+  @keyframes float-top {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(-3deg);
+    }
+    50% {
+      transform: translate3d(-4px, -12px, 0) rotate(-2deg);
+    }
+  }
+
+  @keyframes float-right {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(3deg);
+    }
+    50% {
+      transform: translate3d(6px, -10px, 0) rotate(2deg);
+    }
+  }
+
+  @keyframes float-bottom {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(4px, 10px, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track,
+    .floating-card-base,
+    .floating-card-top,
+    .floating-card-right,
+    .floating-card-bottom {
+      animation: none;
+    }
+
+    .reveal,
+    .reveal.is-visible {
+      transform: none;
+      opacity: 1;
+      transition: none;
     }
   }
 }
