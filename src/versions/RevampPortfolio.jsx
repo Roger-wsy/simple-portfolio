@@ -277,7 +277,7 @@ export default function RevampPortfolio({ data }) {
             </div>
           </div>
 
-          <div className="relative min-h-[34rem]">
+          <div className="relative hidden min-h-[34rem] lg:block">
             <div className="absolute inset-x-8 top-8 h-48 rounded-full bg-emerald-300/30 blur-3xl dark:bg-emerald-500/20" />
             <div className="absolute inset-x-12 bottom-6 h-40 rounded-full bg-sky-300/25 blur-3xl dark:bg-sky-500/15" />
 
