@@ -67,10 +67,11 @@ export default function HeroBackdrop() {
       <div className="absolute inset-x-0 top-0 h-[54rem] bg-[radial-gradient(circle_at_18%_12%,_rgba(16,185,129,0.18),_transparent_30%),radial-gradient(circle_at_86%_12%,_rgba(14,165,233,0.16),_transparent_24%),radial-gradient(circle_at_50%_40%,_rgba(15,23,42,0.05),_transparent_40%),linear-gradient(180deg,_rgba(255,255,255,0.98),_rgba(245,247,250,0.98))] dark:bg-[radial-gradient(circle_at_18%_12%,_rgba(16,185,129,0.18),_transparent_28%),radial-gradient(circle_at_86%_12%,_rgba(56,189,248,0.14),_transparent_22%),radial-gradient(circle_at_50%_40%,_rgba(15,23,42,0.3),_transparent_36%),linear-gradient(180deg,_rgba(2,6,23,0.98),_rgba(2,6,23,1))]" />
 
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(255,255,255,0.7),transparent_18%),radial-gradient(circle_at_18%_30%,rgba(255,255,255,0.45),transparent_14%),radial-gradient(circle_at_82%_24%,rgba(255,255,255,0.4),transparent_12%),radial-gradient(circle_at_12%_62%,rgba(255,255,255,0.3),transparent_10%),radial-gradient(circle_at_76%_68%,rgba(255,255,255,0.38),transparent_10%),radial-gradient(circle_at_58%_54%,rgba(255,255,255,0.25),transparent_8%)] opacity-50 dark:opacity-35" />
+      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-white/0 via-slate-50/75 to-slate-50 dark:from-slate-950/0 dark:via-slate-950/82 dark:to-slate-950" />
 
       <svg
         viewBox="0 0 1440 860"
-        className="absolute inset-0 h-full w-full opacity-80 dark:opacity-70"
+        className="absolute inset-0 h-full w-full opacity-80 [mask-image:linear-gradient(180deg,rgba(0,0,0,1)_0%,rgba(0,0,0,1)_72%,rgba(0,0,0,0.55)_88%,rgba(0,0,0,0)_100%)] dark:opacity-70"
         preserveAspectRatio="xMidYMin slice"
       >
         <defs>
