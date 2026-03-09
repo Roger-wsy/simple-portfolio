@@ -15,6 +15,7 @@ import {
 import { useEffect, useRef } from "react";
 import CursorFollower from "../components/CursorFollower.jsx";
 import HeroBackdrop from "../components/HeroBackdrop.jsx";
+import SectionStars from "../components/SectionStars.jsx";
 import Footer from "../components/layout/Footer.jsx";
 import Reveal from "../components/Reveal.jsx";
 
@@ -417,7 +418,8 @@ export default function RevampPortfolio({ data }) {
           </Reveal>
         </section>
 
-        <section id="experience" className="mx-auto max-w-6xl px-6 py-16">
+        <section id="experience" className="relative mx-auto max-w-6xl px-6 py-16">
+          <SectionStars />
           <Reveal>
             <SectionHeading
               eyebrow="Experience"
@@ -485,7 +487,8 @@ export default function RevampPortfolio({ data }) {
           </div>
         </section>
 
-        <section id="projects" className="mx-auto max-w-6xl px-6 py-16">
+        <section id="projects" className="relative mx-auto max-w-6xl px-6 py-16">
+          <SectionStars />
           <Reveal>
             <SectionHeading
               eyebrow="Projects"
@@ -563,7 +566,8 @@ export default function RevampPortfolio({ data }) {
           </div>
         </section>
 
-        <section id="skills" className="mx-auto max-w-6xl px-6 py-16">
+        <section id="skills" className="relative mx-auto max-w-6xl px-6 py-16">
+          <SectionStars />
           <Reveal>
             <SectionHeading
               eyebrow="Skills"
