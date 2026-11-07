@@ -57,6 +57,11 @@ function TextLink({ href, children, external = false, download = false }) {
 
 export default function RevampPortfolio({ data }) {
   const { profile } = data;
+  const emailSubject = "Portfolio conversation with Roger Wong Sie Yang";
+  const emailBody =
+    "Hi Roger,\n\nI came across your portfolio and would like to speak with you about a software engineering opportunity.\n\nBest regards,\n";
+  const emailDraft = `mailto:${profile.contact.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+  const gmailDraft = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(profile.contact.email)}&su=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
   const mainRef = useRef(null);
   const heroRef = useRef(null);
   const careerRef = useRef(null);
@@ -354,7 +359,9 @@ export default function RevampPortfolio({ data }) {
           <TextLink href={profile.contact.resume} download>
             Download résumé
           </TextLink>
-          <TextLink href={`mailto:${profile.contact.email}`}>Start a conversation</TextLink>
+          <TextLink href={gmailDraft} external>
+            Start a conversation
+          </TextLink>
         </div>
 
         <a className="hero-scroll" href="#experience" data-hero-detail>
@@ -493,7 +500,7 @@ export default function RevampPortfolio({ data }) {
           about the team, the system, and the problem you are solving.
         </p>
         <div className="contact-actions">
-          <a href={`mailto:${profile.contact.email}`}>
+          <a href={emailDraft}>
             <Mail aria-hidden="true" />
             {profile.contact.email}
           </a>
