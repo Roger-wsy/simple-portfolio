@@ -13,6 +13,13 @@ export const versionOptions = [
     label: "Version 5.4",
     description: "Current revamp",
   },
+  {
+    id: "orbital",
+    value: "orbital",
+    shortLabel: "5.5",
+    label: "Version 5.5",
+    description: "Minimal Journal",
+  },
 ];
 
 export const legacyPortfolio = {
@@ -318,4 +325,24 @@ export const revampPortfolio = {
     description:
       "Led a national programming competition with 300+ participants and coordinated a 70-member organizing team through weekly planning and execution.",
   },
+};
+
+export const orbitalPortfolio = {
+  ...revampPortfolio,
+  profile: {
+    ...revampPortfolio.profile,
+    headline: ["Roger Wong"],
+    subheadline:
+      "Software engineer for fintech, digital banking, mobile platforms, and production-grade systems.",
+    intro:
+      "I build and stabilize mobile, web, backend, and cloud systems across investment, banking, compliance, and internal operations. My work sits where product quality, secure workflows, and reliable production delivery have to meet.",
+  },
+  navigation: [
+    { label: "Front Page", href: "#overview" },
+    { label: "Record", href: "#experience" },
+    { label: "Cases", href: "#cases" },
+    { label: "Builds", href: "#projects" },
+    { label: "Stack", href: "#skills" },
+    { label: "Contact", href: "#contact" },
+  ],
 };
