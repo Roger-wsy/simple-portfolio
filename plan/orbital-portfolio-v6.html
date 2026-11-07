@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roger Wong - Orbital Systems Portfolio V6</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #05070f;
+        --panel: rgba(6, 16, 30, 0.74);
+        --panel-strong: rgba(8, 20, 36, 0.92);
+        --line: rgba(103, 232, 249, 0.2);
+        --line-strong: rgba(103, 232, 249, 0.42);
+        --cyan: #67e8f9;
+        --cyan-soft: rgba(103, 232, 249, 0.12);
+        --lime: #bef264;
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --muted-2: #cbd5e1;
+        --shadow: 0 28px 90px rgba(0, 0, 0, 0.36);
+      }
+
+      body[data-theme="light"] {
+        color-scheme: light;
+        --bg: #eef7fb;
+        --panel: rgba(255, 255, 255, 0.76);
+        --panel-strong: rgba(255, 255, 255, 0.94);
+        --line: rgba(8, 145, 178, 0.22);
+        --line-strong: rgba(8, 145, 178, 0.42);
+        --cyan: #0891b2;
+        --cyan-soft: rgba(8, 145, 178, 0.1);
+        --lime: #4d7c0f;
+        --text: #07111f;
+        --muted: #64748b;
+        --muted-2: #334155;
+        --shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .shell {
+        position: relative;
+        min-height: 100vh;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 8%, rgba(103, 232, 249, 0.2), transparent 30rem),
+          radial-gradient(circle at 18% 22%, rgba(190, 242, 100, 0.12), transparent 18rem),
+          radial-gradient(circle at 82% 18%, rgba(59, 130, 246, 0.16), transparent 22rem),
+          linear-gradient(180deg, #05070f 0%, #08111f 52%, #05070f 100%);
+      }
+
+      body[data-theme="light"] .shell {
+        background:
+          radial-gradient(circle at 50% 8%, rgba(8, 145, 178, 0.18), transparent 30rem),
+          radial-gradient(circle at 18% 22%, rgba(77, 124, 15, 0.12), transparent 18rem),
+          radial-gradient(circle at 82% 18%, rgba(37, 99, 235, 0.13), transparent 22rem),
+          linear-gradient(180deg, #f8fdff 0%, #edf7fb 52%, #f8fdff 100%);
+      }
+
+      .noise,
+      .grid,
+      .orbital-map {
+        pointer-events: none;
+        position: fixed;
+        inset: 0;
+      }
+
+      .noise {
+        z-index: 1;
+        opacity: 0.08;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+        background-size: 5px 5px;
+      }
+
+      .grid {
+        z-index: 0;
+        opacity: 0.22;
+        background-image:
+          linear-gradient(rgba(103, 232, 249, 0.32) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(103, 232, 249, 0.32) 1px, transparent 1px);
+        background-size: 74px 74px;
+        animation: drift-grid 7s ease-in-out infinite alternate;
+      }
+
+      .orbital-map {
+        z-index: 0;
+        opacity: 0.85;
+      }
+
+      .container {
+        position: relative;
+        z-index: 2;
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: fixed;
+        top: 18px;
+        left: 50%;
+        z-index: 20;
+        display: flex;
+        width: min(1120px, calc(100% - 32px));
+        transform: translateX(-50%);
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        border: 1px solid rgba(103, 232, 249, 0.18);
+        border-radius: 22px;
+        background: rgba(5, 7, 15, 0.72);
+        padding: 12px 14px;
+        box-shadow: 0 18px 60px rgba(103, 232, 249, 0.11);
+        backdrop-filter: blur(20px);
+      }
+
+      body[data-theme="light"] .topbar {
+        border-color: rgba(8, 145, 178, 0.2);
+        background: rgba(255, 255, 255, 0.76);
+        box-shadow: 0 18px 60px rgba(8, 145, 178, 0.11);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+      }
+
+      .brand-mark,
+      .icon-box {
+        display: inline-grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border: 1px solid rgba(103, 232, 249, 0.28);
+        border-radius: 14px;
+        background:
+          radial-gradient(circle at 30% 30%, rgba(103, 232, 249, 0.42), transparent 42%),
+          rgba(103, 232, 249, 0.08);
+        color: var(--cyan);
+        box-shadow: 0 0 28px rgba(103, 232, 249, 0.14);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: rgba(224, 242, 254, 0.72);
+        font-size: 0.88rem;
+      }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .control {
+        min-height: 38px;
+        border: 1px solid rgba(103, 232, 249, 0.28);
+        border-radius: 999px;
+        background: rgba(5, 7, 15, 0.58);
+        color: #cffafe;
+        font: 800 0.72rem/1 "Andale Mono", "SFMono-Regular", monospace;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        transition: 180ms ease;
+      }
+
+      .control:hover {
+        border-color: rgba(103, 232, 249, 0.58);
+        color: white;
+      }
+
+      .theme-toggle {
+        cursor: pointer;
+        padding: 0 14px;
+      }
+
+      .version-control {
+        cursor: pointer;
+        padding: 0 34px 0 14px;
+      }
+
+      body[data-theme="light"] .control {
+        border-color: rgba(8, 145, 178, 0.24);
+        background: rgba(255, 255, 255, 0.76);
+        color: #075985;
+      }
+
+      .nav a {
+        border-radius: 999px;
+        padding: 9px 13px;
+        transition: 180ms ease;
+      }
+
+      .nav a:hover {
+        background: rgba(103, 232, 249, 0.1);
+        color: white;
+      }
+
+      .hero {
+        display: grid;
+        min-height: 100vh;
+        grid-template-columns: 1.02fr 0.98fr;
+        gap: 58px;
+        align-items: center;
+        padding: 138px 0 78px;
+      }
+
+      .kicker,
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: var(--cyan);
+        font-family: "Andale Mono", "SFMono-Regular", monospace;
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+      }
+
+      .kicker {
+        border: 1px solid rgba(103, 232, 249, 0.24);
+        border-radius: 999px;
+        background: var(--cyan-soft);
+        padding: 10px 14px;
+        box-shadow: 0 0 38px rgba(103, 232, 249, 0.1);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        margin-top: 28px;
+        max-width: 900px;
+        font-size: clamp(3.3rem, 8vw, 7.2rem);
+        line-height: 0.92;
+        letter-spacing: -0.055em;
+      }
+
+      .hero-lede {
+        margin-top: 26px;
+        max-width: 720px;
+        color: rgba(224, 242, 254, 0.82);
+        font-size: 1.16rem;
+        font-weight: 700;
+        line-height: 1.7;
+      }
+
+      .hero-copy,
+      .section-copy,
+      .card p,
+      .mission li {
+        color: var(--muted-2);
+        line-height: 1.75;
+      }
+
+      .hero-copy {
+        margin-top: 20px;
+        max-width: 720px;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 32px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        border-radius: 999px;
+        padding: 13px 18px;
+        font-size: 0.92rem;
+        font-weight: 800;
+        transition: 180ms ease;
+      }
+
+      .button.primary {
+        background: var(--cyan);
+        color: #03111a;
+        box-shadow: 0 0 34px rgba(103, 232, 249, 0.22);
+      }
+
+      .button.secondary {
+        border: 1px solid rgba(103, 232, 249, 0.28);
+        background: rgba(5, 7, 15, 0.62);
+        color: #cffafe;
+      }
+
+      .button:hover,
+      .card:hover,
+      .mission:hover {
+        transform: translateY(-4px);
+      }
+
+      .console {
+        position: relative;
+        display: grid;
+        min-height: 0;
+        gap: 18px;
+      }
+
+      .orbital-panel,
+      .card,
+      .mission {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(18px);
+      }
+
+      .orbital-panel {
+        position: relative;
+        border-radius: 32px;
+        padding: 28px;
+        animation: float-panel 4.8s ease-in-out infinite alternate;
+      }
+
+      .panel-head,
+      .row-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .orbital-panel h2 {
+        margin-top: 12px;
+        font-size: 1.75rem;
+        line-height: 1.12;
+      }
+
+      body[data-theme="light"] h1,
+      body[data-theme="light"] h2,
+      body[data-theme="light"] .orbital-panel h2,
+      body[data-theme="light"] .stat-value,
+      body[data-theme="light"] .mission h3,
+      body[data-theme="light"] .card h3 {
+        color: #07111f;
+      }
+
+      body[data-theme="light"] .hero-lede,
+      body[data-theme="light"] .button.secondary,
+      body[data-theme="light"] .company,
+      body[data-theme="light"] .contact-links a {
+        color: #0f4f66;
+      }
+
+      body[data-theme="light"] .button.secondary,
+      body[data-theme="light"] .focus-list span,
+      body[data-theme="light"] .chip,
+      body[data-theme="light"] .mission li {
+        background: rgba(255, 255, 255, 0.62);
+        border-color: rgba(8, 145, 178, 0.16);
+      }
+
+      body[data-theme="light"] .orbital-panel,
+      body[data-theme="light"] .card,
+      body[data-theme="light"] .mission {
+        background: rgba(255, 255, 255, 0.76);
+      }
+
+      body[data-theme="light"] .mini-panel {
+        background: rgba(236, 252, 203, 0.74);
+      }
+
+      body[data-theme="light"] .contact {
+        background:
+          radial-gradient(circle at 80% 0%, rgba(8, 145, 178, 0.16), transparent 32%),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(236, 247, 251, 0.96));
+      }
+
+      .focus-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .focus-list span,
+      .chip {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      .focus-list span {
+        padding: 14px 15px;
+        color: #e2e8f0;
+        line-height: 1.55;
+      }
+
+      .mini-panel {
+        position: relative;
+        justify-self: end;
+        width: min(360px, 100%);
+        border: 1px solid rgba(190, 242, 100, 0.2);
+        border-radius: 24px;
+        background: rgba(190, 242, 100, 0.1);
+        padding: 22px;
+        box-shadow: 0 24px 70px rgba(190, 242, 100, 0.1);
+        backdrop-filter: blur(18px);
+        animation: float-panel 4.2s ease-in-out infinite alternate-reverse;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .chip {
+        padding: 8px 11px;
+        color: #e2e8f0;
+        font-size: 0.78rem;
+        font-weight: 800;
+      }
+
+      .stats,
+      .projects,
+      .skills {
+        display: grid;
+        gap: 18px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(3, 1fr);
+        padding-bottom: 56px;
+      }
+
+      .card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        padding: 24px;
+        transition: 200ms ease;
+      }
+
+      .card::before,
+      .mission::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(103, 232, 249, 0.72), transparent);
+      }
+
+      .stat-value {
+        margin-top: 16px;
+        color: white;
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+      }
+
+      section {
+        position: relative;
+        z-index: 2;
+        padding: 76px 0;
+      }
+
+      .section-title {
+        max-width: 760px;
+        margin-top: 16px;
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+      }
+
+      .section-copy {
+        max-width: 760px;
+        margin-top: 18px;
+      }
+
+      .missions {
+        display: grid;
+        gap: 18px;
+        margin-top: 42px;
+      }
+
+      .mission {
+        position: relative;
+        overflow: hidden;
+        border-radius: 28px;
+        padding: 26px;
+        transition: 200ms ease;
+      }
+
+      .mission-grid {
+        display: grid;
+        grid-template-columns: 0.82fr 1.18fr;
+        gap: 30px;
+      }
+
+      .mission-code {
+        display: inline-grid;
+        place-items: center;
+        width: 46px;
+        height: 46px;
+        border: 1px solid rgba(103, 232, 249, 0.24);
+        border-radius: 17px;
+        background: var(--cyan-soft);
+        color: var(--cyan);
+        font-family: "Andale Mono", monospace;
+        font-weight: 900;
+      }
+
+      .mission h3,
+      .card h3 {
+        margin-top: 22px;
+        color: white;
+        font-size: 1.55rem;
+      }
+
+      .mission .company {
+        margin-top: 8px;
+        color: rgba(207, 250, 254, 0.76);
+        font-weight: 800;
+      }
+
+      .mission ul {
+        display: grid;
+        gap: 10px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .mission li {
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.035);
+        padding: 13px 15px;
+      }
+
+      .projects {
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 42px;
+      }
+
+      .card .meta {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .card-link {
+        display: inline-flex;
+        margin-top: 26px;
+        color: var(--cyan);
+        font-weight: 900;
+      }
+
+      .skills {
+        grid-template-columns: repeat(2, 1fr);
+        margin-top: 42px;
+      }
+
+      .contact {
+        display: grid;
+        grid-template-columns: 1fr 0.72fr;
+        gap: 38px;
+        align-items: end;
+        border: 1px solid rgba(103, 232, 249, 0.18);
+        border-radius: 34px;
+        background:
+          radial-gradient(circle at 80% 0%, rgba(103, 232, 249, 0.18), transparent 32%),
+          linear-gradient(135deg, rgba(8, 17, 31, 0.96), rgba(2, 6, 23, 0.98));
+        padding: 34px;
+        box-shadow: 0 34px 100px rgba(0, 0, 0, 0.38);
+      }
+
+      .contact-links {
+        display: grid;
+        gap: 12px;
+      }
+
+      .contact-links a {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border: 1px solid rgba(103, 232, 249, 0.22);
+        border-radius: 18px;
+        padding: 15px 16px;
+        color: #cffafe;
+        font-weight: 900;
+      }
+
+      .contact-links a:first-child {
+        background: var(--cyan);
+        color: #03111a;
+      }
+
+      footer {
+        position: relative;
+        z-index: 2;
+        border-top: 1px solid rgba(103, 232, 249, 0.12);
+        padding: 28px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 0.82rem;
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(26px);
+        transition: 700ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @keyframes drift-grid {
+        from {
+          transform: translateY(0);
+        }
+        to {
+          transform: translateY(26px);
+        }
+      }
+
+      @keyframes float-panel {
+        from {
+          transform: translate3d(0, 0, 0) rotate(-0.2deg);
+        }
+        to {
+          transform: translate3d(0, -12px, 0) rotate(0.4deg);
+        }
+      }
+
+      @keyframes orbit {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .orbit-spin {
+        transform-origin: 850px 310px;
+        animation: orbit 48s linear infinite;
+      }
+
+      @media (max-width: 920px) {
+        .nav {
+          display: none;
+        }
+
+        .topbar {
+          align-items: flex-start;
+        }
+
+        .controls {
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+
+        .hero,
+        .mission-grid,
+        .contact {
+          grid-template-columns: 1fr;
+        }
+
+        .console {
+          min-height: 0;
+        }
+
+        .orbital-panel {
+          inset: auto;
+        }
+
+        .stats,
+        .projects,
+        .skills {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .topbar {
+          width: calc(100% - 24px);
+        }
+
+        .brand span:last-child {
+          display: none;
+        }
+
+        .controls {
+          max-width: 72%;
+        }
+
+        .control {
+          min-height: 34px;
+          font-size: 0.62rem;
+        }
+
+        .hero {
+          padding-top: 118px;
+        }
+
+        h1 {
+          font-size: 3.2rem;
+        }
+
+        .container {
+          width: min(100% - 28px, 1120px);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="grid"></div>
+      <div class="noise"></div>
+      <svg class="orbital-map" viewBox="0 0 1440 820" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+        <defs>
+          <linearGradient id="beam" x1="0%" x2="100%" y1="0%" y2="0%">
+            <stop offset="0%" stop-color="rgba(103,232,249,0)" />
+            <stop offset="50%" stop-color="rgba(103,232,249,.76)" />
+            <stop offset="100%" stop-color="rgba(190,242,100,0)" />
+          </linearGradient>
+          <radialGradient id="node" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="white" />
+            <stop offset="44%" stop-color="rgba(103,232,249,.95)" />
+            <stop offset="100%" stop-color="rgba(103,232,249,0)" />
+          </radialGradient>
+        </defs>
+        <g class="orbit-spin">
+          <ellipse cx="850" cy="310" rx="360" ry="148" fill="none" stroke="rgba(103,232,249,.28)" stroke-width="1.4" transform="rotate(-12 850 310)" />
+          <ellipse cx="850" cy="310" rx="240" ry="96" fill="none" stroke="rgba(190,242,100,.22)" stroke-width="1.2" transform="rotate(18 850 310)" />
+          <circle cx="850" cy="310" r="92" fill="none" stroke="rgba(255,255,255,.12)" />
+          <circle cx="1210" cy="278" r="8" fill="url(#node)" />
+          <circle cx="610" cy="355" r="7" fill="url(#node)" />
+          <circle cx="850" cy="218" r="6" fill="url(#node)" />
+        </g>
+        <path d="M-60 520 C210 380, 420 420, 642 500 S1050 700, 1510 460" fill="none" stroke="url(#beam)" stroke-width="2" />
+        <path d="M1200 40 C1010 160, 1010 330, 1170 460 S1390 660, 1490 590" fill="none" stroke="url(#beam)" stroke-width="2" />
+      </svg>
+
+      <header class="topbar">
+        <a class="brand" href="#overview" aria-label="Roger Wong home">
+          <span class="brand-mark">◎</span>
+          <span>Roger Wong</span>
+        </a>
+        <nav class="nav" aria-label="Main navigation">
+          <a href="#overview">Orbit</a>
+          <a href="#experience">Missions</a>
+          <a href="#projects">Builds</a>
+          <a href="#skills">Stack</a>
+          <a href="#contact">Signal</a>
+        </nav>
+        <div class="controls" aria-label="Portfolio controls">
+          <select class="control version-control" id="versionControl" aria-label="Switch portfolio version">
+            <option value="legacy">5.2 · Legacy build</option>
+            <option value="revamp">5.4 · Current revamp</option>
+            <option value="orbital" selected>5.5 · Orbital Systems</option>
+          </select>
+          <button class="control theme-toggle" id="themeToggle" type="button" aria-label="Switch color mode">
+            Dark
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section id="overview" class="container hero">
+          <div>
+            <div class="kicker reveal">Satellite portfolio - GPT-5.5 concept</div>
+            <h1 class="reveal">Roger Wong</h1>
+            <p class="hero-lede reveal">
+              Software engineer for fintech, digital banking, mobile platforms, and production-grade systems.
+            </p>
+            <p class="hero-copy reveal">
+              I build and stabilize mobile, web, backend, and cloud systems across investment, banking, compliance, and internal operations. This version frames that work as an orbital control system: mobile apps, APIs, data stores, cloud infrastructure, and release pipelines moving together around production reliability.
+            </p>
+            <div class="actions reveal">
+              <a class="button primary" href="/resume-roger-wong-2026.pdf">Download Resume</a>
+              <a class="button secondary" href="mailto:rogerwong20011021@gmail.com">Contact</a>
+              <a class="button secondary" href="https://www.linkedin.com/in/roger-wong-sie-yang-415a691ab/" target="_blank" rel="noreferrer">LinkedIn</a>
+            </div>
+          </div>
+
+          <div class="console reveal">
+            <div class="orbital-panel parallax">
+              <div class="panel-head">
+                <div>
+                  <p class="eyebrow">Control Center</p>
+                  <h2>Production systems in stable orbit</h2>
+                </div>
+                <span class="icon-box">⌁</span>
+              </div>
+              <div class="focus-list">
+                <span>Flutter and cross-platform mobile delivery</span>
+                <span>Java Spring Boot APIs and transaction services</span>
+                <span>Fintech, eKYC, payments, and digital banking workflows</span>
+                <span>CI/CD, release discipline, and maintainable production systems</span>
+              </div>
+            </div>
+            <div class="mini-panel parallax">
+              <p class="eyebrow">Stack Orbit</p>
+              <div class="chips">
+                <span class="chip">Flutter</span>
+                <span class="chip">Spring Boot</span>
+                <span class="chip">Angular</span>
+                <span class="chip">AWS</span>
+                <span class="chip">PostgreSQL</span>
+                <span class="chip">Argo CD</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="container stats">
+          <article class="card reveal">
+            <p class="eyebrow">Production Flight</p>
+            <div class="stat-value">2+ years</div>
+            <p>Shipping production software across mobile, backend, and internal tools.</p>
+          </article>
+          <article class="card reveal">
+            <p class="eyebrow">Transaction Uplift</p>
+            <div class="stat-value">22%</div>
+            <p>Higher transaction completion from payment improvements.</p>
+          </article>
+          <article class="card reveal">
+            <p class="eyebrow">Users Reached</p>
+            <div class="stat-value">10k+</div>
+            <p>Users reached on shipped mobile products.</p>
+          </article>
+        </div>
+
+        <section id="experience" class="container">
+          <p class="eyebrow reveal">Mission Log</p>
+          <h2 class="section-title reveal">Experience mapped as production missions.</h2>
+          <p class="section-copy reveal">
+            Each role is framed around shipped systems, operational constraints, and the engineering decisions needed to keep real products moving.
+          </p>
+          <div class="missions">
+            <article class="mission reveal">
+              <div class="mission-grid">
+                <div>
+                  <span class="mission-code">M1</span>
+                  <h3>IT Specialist (Full Stack Software Engineer)</h3>
+                  <p class="company">iFAST Global Hub AI - Apr 2024 to Present</p>
+                  <p class="section-copy">Shipping mobile, web, and backend capabilities across FSMOne and a UK SME digital banking platform.</p>
+                  <div class="chips">
+                    <span class="chip">Flutter</span><span class="chip">Angular</span><span class="chip">Spring Boot</span><span class="chip">PostgreSQL</span><span class="chip">GitLab CI/CD</span>
+                  </div>
+                </div>
+                <ul>
+                  <li>Enhanced Flutter modules across investment and banking products.</li>
+                  <li>Built secure domestic transfer and FX payment services through REST APIs.</li>
+                  <li>Redesigned eKYC and compliance backoffice workflows.</li>
+                  <li>Delivered Angular dashboards and improved release operations through GitLab CI/CD and Argo CD.</li>
+                </ul>
+              </div>
+            </article>
+            <article class="mission reveal">
+              <div class="mission-grid">
+                <div>
+                  <span class="mission-code">M2</span>
+                  <h3>Full Stack Software Engineer (Part Time)</h3>
+                  <p class="company">Seamless X Sdn Bhd - Jul 2023 to Oct 2023</p>
+                  <p class="section-copy">Delivered internal operational software for electrical supply clients.</p>
+                  <div class="chips">
+                    <span class="chip">.NET MVC</span><span class="chip">MySQL</span><span class="chip">jQuery</span><span class="chip">Postman</span>
+                  </div>
+                </div>
+                <ul>
+                  <li>Architected an administrative dashboard that improved workflow efficiency by 30%.</li>
+                  <li>Optimized backend queries and validated REST endpoints.</li>
+                  <li>Implemented role-based access control across internal modules.</li>
+                </ul>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="projects" class="container">
+          <p class="eyebrow reveal">Build Registry</p>
+          <h2 class="section-title reveal">Selected systems with visible role, stack, and impact.</h2>
+          <div class="projects">
+            <article class="card reveal">
+              <p class="eyebrow">Project</p>
+              <h3>MEMOSA</h3>
+              <p>Cloud migration and infrastructure delivery for a production system with stricter data residency and scalability requirements.</p>
+              <p class="meta">AWS, VPC, ECS Fargate, API Gateway, Aurora MySQL, NLB</p>
+              <a class="card-link" href="https://roger-wsy.github.io/simple-portfolio/" target="_blank" rel="noreferrer">View reference</a>
+            </article>
+            <article class="card reveal">
+              <p class="eyebrow">Project</p>
+              <h3>RESPIRE</h3>
+              <p>Cross-platform air quality forecasting application for Klang users with real-time environmental modeling.</p>
+              <p class="meta">Flutter, Golang, Firebase, MongoDB</p>
+              <a class="card-link" href="https://cerc.co.uk/forecasting/air-quality/klang.html" target="_blank" rel="noreferrer">Live project</a>
+            </article>
+            <article class="card reveal">
+              <p class="eyebrow">Project</p>
+              <h3>Advance Care Planning</h3>
+              <p>Healthcare application guiding users through structured medical directives with secure data handling.</p>
+              <p class="meta">Flutter, Next.js, Firebase, MongoDB</p>
+              <a class="card-link" href="https://github.com/Roger-wsy" target="_blank" rel="noreferrer">GitHub</a>
+            </article>
+          </div>
+        </section>
+
+        <section id="skills" class="container">
+          <p class="eyebrow reveal">System Stack</p>
+          <h2 class="section-title reveal">A technical orbit across mobile, APIs, cloud, data, and delivery.</h2>
+          <div class="skills">
+            <article class="card reveal"><p class="eyebrow">Frontend and mobile</p><h3>App Surfaces</h3><div class="chips"><span class="chip">Flutter</span><span class="chip">React</span><span class="chip">Angular</span><span class="chip">TypeScript</span><span class="chip">Vue.js</span></div></article>
+            <article class="card reveal"><p class="eyebrow">Backend and APIs</p><h3>Service Layer</h3><div class="chips"><span class="chip">Java Spring Boot</span><span class="chip">.NET Core</span><span class="chip">Golang</span><span class="chip">REST APIs</span><span class="chip">Microservices</span></div></article>
+            <article class="card reveal"><p class="eyebrow">Data and cloud</p><h3>Infrastructure Orbit</h3><div class="chips"><span class="chip">AWS</span><span class="chip">PostgreSQL</span><span class="chip">MySQL</span><span class="chip">MongoDB</span><span class="chip">Firebase</span></div></article>
+            <article class="card reveal"><p class="eyebrow">Delivery</p><h3>Release Systems</h3><div class="chips"><span class="chip">GitLab CI/CD</span><span class="chip">Argo CD</span><span class="chip">Postman</span><span class="chip">TestFlight</span><span class="chip">Agile Delivery</span></div></article>
+          </div>
+        </section>
+
+        <section id="education" class="container">
+          <p class="eyebrow reveal">Academic Signal</p>
+          <h2 class="section-title reveal">Computer science foundations with practical systems leadership.</h2>
+          <p class="section-copy reveal">
+            The academic layer stays concise and tied back to execution: AI fundamentals, strong grades, and leadership experience running a national programming competition.
+          </p>
+          <div class="projects">
+            <article class="card reveal">
+              <p class="eyebrow">Education</p>
+              <h3>Universiti Malaya</h3>
+              <p>Bachelor of Computer Science (Artificial Intelligence)</p>
+              <p class="meta">2020 - 2024 - CGPA 3.92</p>
+            </article>
+            <article class="card reveal">
+              <p class="eyebrow">Education</p>
+              <h3>Kolej Matrikulasi Labuan</h3>
+              <p>Matriculation Programme</p>
+              <p class="meta">2018 - 2020 - CGPA 4.00</p>
+            </article>
+            <article class="card reveal">
+              <p class="eyebrow">Leadership</p>
+              <h3>Director of Programming League National</h3>
+              <p>Led a national programming competition with 300+ participants and coordinated a 70-member organizing team.</p>
+              <p class="meta">Universiti Malaya - Jan 2022 to Jun 2022</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="contact" class="container">
+          <div class="contact reveal">
+            <div>
+              <p class="eyebrow">Signal Open</p>
+              <h2 class="section-title">Ready for engineering teams building fintech, banking, mobile, or backend systems.</h2>
+              <p class="section-copy">Best fit: roles where product quality, release discipline, and production reliability matter.</p>
+            </div>
+            <div class="contact-links">
+              <a href="mailto:rogerwong20011021@gmail.com">Email <span>→</span></a>
+              <a href="https://www.linkedin.com/in/roger-wong-sie-yang-415a691ab/" target="_blank" rel="noreferrer">LinkedIn <span>↗</span></a>
+              <a href="https://github.com/Roger-wsy" target="_blank" rel="noreferrer">GitHub <span>↗</span></a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>© 2026 Roger Wong Sie Yang. Orbital Systems Portfolio V6 prototype.</footer>
+    </div>
+
+    <script>
+      const themeToggle = document.querySelector("#themeToggle");
+      const versionControl = document.querySelector("#versionControl");
+      const savedTheme = localStorage.getItem("orbital-prototype-theme") || "dark";
+      document.body.dataset.theme = savedTheme;
+      themeToggle.textContent = savedTheme === "light" ? "Light" : "Dark";
+
+      themeToggle.addEventListener("click", () => {
+        const nextTheme = document.body.dataset.theme === "light" ? "dark" : "light";
+        document.body.dataset.theme = nextTheme;
+        localStorage.setItem("orbital-prototype-theme", nextTheme);
+        themeToggle.textContent = nextTheme === "light" ? "Light" : "Dark";
+      });
+
+      versionControl.addEventListener("change", (event) => {
+        const nextVersion = event.target.value;
+        localStorage.setItem("portfolio-version", nextVersion);
+
+        if (nextVersion === "orbital") return;
+
+        const localAppUrl = `http://127.0.0.1:4174/simple-portfolio/?version=${nextVersion}`;
+        const deployedAppUrl = `/simple-portfolio/?version=${nextVersion}`;
+        const targetUrl = window.location.protocol === "file:" ? localAppUrl : deployedAppUrl;
+        window.location.href = targetUrl;
+      });
+
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reveals = document.querySelectorAll(".reveal");
+
+      if (reducedMotion) {
+        reveals.forEach((item) => item.classList.add("visible"));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12 }
+        );
+
+        reveals.forEach((item, index) => {
+          item.style.transitionDelay = `${Math.min(index * 45, 260)}ms`;
+          observer.observe(item);
+        });
+
+        const shell = document.querySelector(".shell");
+        const panels = document.querySelectorAll(".parallax");
+        if (window.matchMedia("(pointer: fine)").matches) {
+          shell.addEventListener(
+            "mousemove",
+            (event) => {
+              const rect = shell.getBoundingClientRect();
+              const x = ((event.clientX - rect.left) / rect.width - 0.5) * 18;
+              const y = ((event.clientY - rect.top) / rect.height - 0.5) * 18;
+              panels.forEach((panel, index) => {
+                const depth = index % 2 === 0 ? 0.7 : 1;
+                panel.style.transform = `translate3d(${x * depth}px, ${y * depth}px, 0)`;
+              });
+            },
+            { passive: true }
+          );
+        }
+      }
+    </script>
+  </body>
+</html>

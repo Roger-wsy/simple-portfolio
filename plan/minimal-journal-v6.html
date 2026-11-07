@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roger Wong - Minimal Journal V6</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --paper: #f7f2ea;
+        --paper-2: #fbf7ef;
+        --ink: #1c1917;
+        --muted: #78716c;
+        --rule: #d6d3d1;
+      }
+
+      body.dark {
+        color-scheme: dark;
+        --paper: #d8c7ae;
+        --paper-2: #eadcc6;
+        --ink: #211910;
+        --muted: #5d4a38;
+        --rule: #6f604e;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: "Avenir Next", "Segoe UI", sans-serif;
+        transition: background 260ms ease, color 260ms ease;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .topbar {
+        position: fixed;
+        left: 50%;
+        top: 18px;
+        z-index: 10;
+        display: flex;
+        width: min(1120px, calc(100% - 32px));
+        transform: translateX(-50%);
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border: 0;
+        border-bottom: 1px solid var(--ink);
+        background: color-mix(in srgb, var(--paper) 94%, transparent);
+        padding: 12px 14px;
+        backdrop-filter: blur(16px);
+      }
+
+      .brand {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+      }
+
+      .nav {
+        display: flex;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .nav a,
+      .control {
+        border: 1px solid transparent;
+        padding: 9px 12px;
+      }
+
+      .nav a:hover,
+      .control:hover {
+        border-color: var(--ink);
+        color: var(--ink);
+      }
+
+      .controls {
+        display: flex;
+        gap: 8px;
+      }
+
+      .control {
+        background: var(--paper-2);
+        color: var(--ink);
+        cursor: pointer;
+        font: 700 0.72rem/1 "Andale Mono", monospace;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 112px 0 56px;
+      }
+
+      .hero,
+      section {
+        border-top: 1px solid var(--rule);
+        padding: 36px 0;
+      }
+
+      .hero {
+        min-height: auto;
+        border-bottom: 1px solid var(--rule);
+      }
+
+      .masthead {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        border-bottom: 1px solid var(--rule);
+        padding-bottom: 16px;
+        color: var(--muted);
+        font: 700 0.75rem/1.7 "Andale Mono", monospace;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .hero-grid,
+      .section-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 44px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: Georgia, "Times New Roman", serif;
+        letter-spacing: -0.04em;
+      }
+
+      h1 {
+        margin-top: 32px;
+        font-size: clamp(4rem, 12vw, 8.5rem);
+        line-height: 0.85;
+      }
+
+      h2 {
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 1;
+      }
+
+      h3 {
+        font-size: 1.8rem;
+      }
+
+      .lede {
+        margin-top: 28px;
+        max-width: 760px;
+        color: color-mix(in srgb, var(--ink) 78%, var(--muted));
+        font-size: 1.28rem;
+        line-height: 1.75;
+      }
+
+      .copy {
+        margin-top: 18px;
+        color: var(--muted);
+        line-height: 1.8;
+      }
+
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-top: 28px;
+      }
+
+      .link {
+        border-bottom: 1px solid var(--ink);
+        padding-bottom: 4px;
+        font-weight: 700;
+      }
+
+      .brief,
+      .article,
+      .contact-card {
+        border: 1px solid var(--rule);
+        background: color-mix(in srgb, var(--paper-2) 78%, transparent);
+        padding: 24px;
+      }
+
+      .meta {
+        color: var(--muted);
+        font: 700 0.75rem/1.7 "Andale Mono", monospace;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .metric {
+        display: grid;
+        grid-template-columns: 5rem 1fr;
+        gap: 18px;
+        border-top: 1px solid var(--rule);
+        padding: 16px 0;
+      }
+
+      .metric strong {
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 2rem;
+      }
+
+      .section-grid {
+        grid-template-columns: 13rem 1fr;
+      }
+
+      .articles {
+        display: grid;
+        gap: 18px;
+      }
+
+      .article:hover {
+        background: var(--paper-2);
+      }
+
+      .article p,
+      li {
+        color: var(--muted);
+        line-height: 1.75;
+      }
+
+      .matrix {
+        display: grid;
+        border: 1px solid var(--rule);
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .matrix > div {
+        border-bottom: 1px solid var(--rule);
+        border-right: 1px solid var(--rule);
+        padding: 22px;
+      }
+
+      .matrix ul {
+        margin: 18px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .matrix li {
+        border-top: 1px solid var(--rule);
+        padding: 9px 0;
+      }
+
+      @media (max-width: 900px) {
+        .nav {
+          display: none;
+        }
+
+        .hero-grid,
+        .section-grid,
+        .matrix {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .brand {
+          display: none;
+        }
+
+        .topbar {
+          align-items: flex-start;
+        }
+
+        .controls {
+          flex-wrap: wrap;
+          justify-content: flex-end;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#front">Roger Wong</a>
+      <nav class="nav">
+        <a href="#front">Front Page</a>
+        <a href="#record">Record</a>
+        <a href="#cases">Cases</a>
+        <a href="#stack">Stack</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="controls">
+        <select class="control" id="versionControl">
+          <option value="legacy">5.2 · Legacy build</option>
+          <option value="revamp">5.4 · Current revamp</option>
+          <option value="orbital" selected>5.5 · Minimal Journal</option>
+        </select>
+        <button class="control" id="themeToggle">Light</button>
+      </div>
+    </header>
+
+    <main class="page">
+      <section id="front" class="hero">
+        <div class="masthead">
+          <span>Minimal Journal · Version 5.5</span>
+          <span>Kuala Lumpur / Software Engineering</span>
+        </div>
+        <div class="hero-grid">
+          <div>
+            <h1>Roger Wong</h1>
+            <p class="lede">Software engineer for fintech, digital banking, mobile platforms, and production-grade systems.</p>
+            <p class="copy">I build and stabilize mobile, web, backend, and cloud systems across investment, banking, compliance, and internal operations.</p>
+            <div class="links">
+              <a class="link" href="/resume-roger-wong-2026.pdf">Resume</a>
+              <a class="link" href="mailto:rogerwong20011021@gmail.com">Contact</a>
+              <a class="link" href="https://www.linkedin.com/in/roger-wong-sie-yang-415a691ab/" target="_blank" rel="noreferrer">LinkedIn</a>
+            </div>
+          </div>
+          <aside class="brief">
+            <p class="meta">Profile Brief</p>
+            <h3 style="margin-top: 18px">Full-Stack Software Engineer</h3>
+            <div style="margin-top: 24px">
+              <div class="metric"><strong>2+</strong><span>Years shipping production software</span></div>
+              <div class="metric"><strong>22%</strong><span>Higher transaction completion from payment improvements</span></div>
+              <div class="metric"><strong>10k+</strong><span>Users reached on shipped mobile products</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="record">
+        <div class="section-grid">
+          <p class="meta">Professional Record</p>
+          <div>
+            <h2>Shipped systems under production constraints.</h2>
+            <div class="articles" style="margin-top: 32px">
+              <article class="article">
+                <p class="meta">Lead Story · Apr 2024 - Present</p>
+                <h3 style="margin-top: 14px">IT Specialist (Full Stack Software Engineer)</h3>
+                <p style="margin-top: 14px">Shipping mobile, web, and backend capabilities across the FSMOne investment platform and a UK SME digital banking platform.</p>
+              </article>
+              <article class="article">
+                <p class="meta">Jul 2023 - Oct 2023</p>
+                <h3 style="margin-top: 14px">Full Stack Software Engineer (Part Time)</h3>
+                <p style="margin-top: 14px">Delivered internal operational software for electrical supply clients with an emphasis on workflow efficiency and stability.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="cases">
+        <div class="section-grid">
+          <p class="meta">Case Notes</p>
+          <div>
+            <h2>Problem, ownership, and result.</h2>
+            <div class="articles" style="margin-top: 32px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+              <article class="article"><p class="meta">Project</p><h3>MEMOSA</h3><p>Cloud migration and infrastructure delivery for compliant regional deployment.</p></article>
+              <article class="article"><p class="meta">Project</p><h3>RESPIRE</h3><p>Cross-platform air quality forecasting application for Klang users.</p></article>
+              <article class="article"><p class="meta">Project</p><h3>ACP</h3><p>Healthcare workflow application for structured medical directives.</p></article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="stack">
+        <div class="section-grid">
+          <p class="meta">Capability Index</p>
+          <div>
+            <h2>A compact matrix of delivery capabilities.</h2>
+            <div class="matrix" style="margin-top: 32px">
+              <div><h3>Mobile</h3><ul><li>Flutter</li><li>Dart</li><li>React</li><li>Angular</li></ul></div>
+              <div><h3>Backend/API</h3><ul><li>Java Spring Boot</li><li>.NET Core</li><li>Golang</li><li>REST APIs</li></ul></div>
+              <div><h3>Data/Cloud</h3><ul><li>AWS</li><li>PostgreSQL</li><li>MySQL</li><li>MongoDB</li></ul></div>
+              <div><h3>Delivery</h3><ul><li>GitLab CI/CD</li><li>Argo CD</li><li>Postman</li><li>TestFlight</li></ul></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact">
+        <div class="section-grid">
+          <p class="meta">Contact</p>
+          <div class="contact-card">
+            <h2>Open to software engineering roles where product quality and execution matter.</h2>
+            <div class="links">
+              <a class="link" href="mailto:rogerwong20011021@gmail.com">Email</a>
+              <a class="link" href="https://github.com/Roger-wsy" target="_blank" rel="noreferrer">GitHub</a>
+              <a class="link" href="https://www.linkedin.com/in/roger-wong-sie-yang-415a691ab/" target="_blank" rel="noreferrer">LinkedIn</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const themeToggle = document.querySelector("#themeToggle");
+      const versionControl = document.querySelector("#versionControl");
+      const savedTheme = localStorage.getItem("minimal-journal-theme") || "light";
+      document.body.classList.toggle("dark", savedTheme === "dark");
+      themeToggle.textContent = savedTheme === "dark" ? "Dark" : "Light";
+
+      themeToggle.addEventListener("click", () => {
+        const nextTheme = document.body.classList.contains("dark") ? "light" : "dark";
+        document.body.classList.toggle("dark", nextTheme === "dark");
+        localStorage.setItem("minimal-journal-theme", nextTheme);
+        themeToggle.textContent = nextTheme === "dark" ? "Dark" : "Light";
+      });
+
+      versionControl.addEventListener("change", (event) => {
+        const nextVersion = event.target.value;
+        localStorage.setItem("portfolio-version", nextVersion);
+        if (nextVersion === "orbital") return;
+        window.location.href = `http://127.0.0.1:4176/simple-portfolio/?version=${nextVersion}`;
+      });
+    </script>
+  </body>
+</html>
