@@ -1,13 +1,14 @@
-# Simple Portfolio
+# Roger Wong Sie Yang Portfolio
 
-A minimalist, responsive personal portfolio built with React + Vite and styled using Tailwind CSS.
+A responsive, orbital-inspired portfolio built with React, Vite, GSAP, and Tailwind CSS. It presents Roger's current software engineering work at Athena Dynamics alongside his experience, selected systems, skills, education, résumé, and contact details.
 
 ## ✨ Features
-- Single-page layout with smooth scrolling navigation
-- Light/Dark theme toggle with system preference + localStorage persistence
-- Sections for About, Skills, Projects, Experience, Education, and Contact
-- Responsive layout for mobile and desktop
-- SEO-ready meta tags
+- Single editorial portfolio experience with anchored navigation
+- Animated orbital trajectory and responsive gravity-field background
+- Light and dark themes with system preference and localStorage persistence
+- Experience, projects, skills, education, leadership, résumé, and contact sections
+- Reduced-motion support, keyboard navigation, and responsive layouts
+- SEO metadata and a custom orbital favicon
 
 ## 📦 Getting Started
 
@@ -60,7 +61,9 @@ npm run preview
 
 ## 🧰 Tech Stack
 - React 19 + Vite
-- Tailwind CSS
+- GSAP with ScrollTrigger and MotionPathPlugin
+- Tailwind CSS plus authored component styles
+- Archivo Variable and IBM Plex Mono
 
 ## 📸 Preview
 Run locally and open `http://localhost:5173` to view the site.

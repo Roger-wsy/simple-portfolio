@@ -1,728 +1,520 @@
 import { gsap } from "gsap";
+import { MotionPathPlugin } from "gsap/MotionPathPlugin";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
-  ArrowRight,
-  BriefcaseBusiness,
-  Cpu,
+  ArrowDownRight,
+  ArrowUpRight,
   Download,
-  ExternalLink,
   Github,
-  GraduationCap,
   Linkedin,
   Mail,
-  ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import { useEffect, useRef } from "react";
-import CursorFollower from "../components/CursorFollower.jsx";
-import HeroBackdrop from "../components/HeroBackdrop.jsx";
-import SectionStars from "../components/SectionStars.jsx";
-import Footer from "../components/layout/Footer.jsx";
-import Reveal from "../components/Reveal.jsx";
+import GravityField from "../components/GravityField.jsx";
 
-function SectionHeading({ eyebrow, title, body }) {
+gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
+
+function HeroTrajectory() {
   return (
-    <div className="max-w-3xl space-y-4">
-      <p className="section-subtitle text-emerald-600 dark:text-emerald-300">
-        {eyebrow}
-      </p>
-      <h2 className="section-title text-3xl sm:text-4xl">{title}</h2>
-      <p className="text-base leading-7 text-slate-600 dark:text-slate-300">
-        {body}
-      </p>
-    </div>
+    <svg
+      className="hero-trajectory"
+      viewBox="0 0 1440 820"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path
+        className="hero-trajectory__ghost"
+        d="M -120 145 C 210 165 595 190 820 335 C 1045 480 987 680 665 764 C 390 835 325 915 486 1020"
+      />
+      <path
+        data-orbit-path
+        data-trajectory
+        className="hero-trajectory__line"
+        pathLength="1"
+        d="M -120 145 C 210 165 595 190 820 335 C 1045 480 987 680 665 764 C 390 835 325 915 486 1020"
+      />
+      <circle className="trajectory-traveler" data-orbit-traveler r="6" />
+      <circle cx="829" cy="341" r="9" className="trajectory-node trajectory-node--current" />
+      <circle cx="665" cy="764" r="5" className="trajectory-node trajectory-node--past" />
+    </svg>
+  );
+}
+
+function TextLink({ href, children, external = false, download = false }) {
+  return (
+    <a
+      className="text-link"
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+      download={download || undefined}
+    >
+      <span>{children}</span>
+      {external ? <ArrowUpRight aria-hidden="true" /> : <ArrowDownRight aria-hidden="true" />}
+    </a>
   );
 }
 
 export default function RevampPortfolio({ data }) {
-  const { contact } = data.profile;
+  const { profile } = data;
+  const mainRef = useRef(null);
   const heroRef = useRef(null);
-  const marqueeItems = [
-    "Flutter",
-    "Java Spring Boot",
-    "Angular",
-    ".NET Core",
-    "REST APIs",
-    "AWS",
-    "PostgreSQL",
-    "MongoDB",
-    "GitLab CI/CD",
-    "Argo CD",
-  ];
+  const careerRef = useRef(null);
 
   useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero) return undefined;
+    const root = mainRef.current;
+    const career = careerRef.current;
+    if (!root || !heroRef.current || !career) return undefined;
 
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const select = gsap.utils.selector(root);
+    const media = gsap.matchMedia();
 
-      tl.fromTo(
-        "[data-hero-badge]",
-        { autoAlpha: 0, y: 18 },
-        { autoAlpha: 1, y: 0, duration: 0.55 },
-      )
-        .fromTo(
-          "[data-hero-title]",
-          { autoAlpha: 0, y: 26 },
-          { autoAlpha: 1, y: 0, duration: 0.75 },
-          "-=0.2",
-        )
-        .fromTo(
-          "[data-hero-meta]",
-          { autoAlpha: 0, y: 18 },
-          { autoAlpha: 1, y: 0, duration: 0.5 },
-          "-=0.42",
-        )
-        .fromTo(
-          "[data-hero-copy]",
-          { autoAlpha: 0, y: 24 },
-          { autoAlpha: 1, y: 0, duration: 0.65 },
-          "-=0.35",
-        )
-        .fromTo(
-          "[data-hero-body]",
-          { autoAlpha: 0, y: 24 },
-          { autoAlpha: 1, y: 0, duration: 0.65 },
-          "-=0.4",
-        )
-        .fromTo(
-          "[data-hero-actions]",
-          { autoAlpha: 0, y: 20 },
-          { autoAlpha: 1, y: 0, duration: 0.55 },
-          "-=0.35",
-        )
-        .fromTo(
-          "[data-hero-metric]",
-          { autoAlpha: 0, y: 28, scale: 0.98 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.55,
-            stagger: 0.08,
+    media.add(
+      {
+        isDesktop: "(min-width: 981px)",
+        isMobile: "(max-width: 980px)",
+        reduceMotion: "(prefers-reduced-motion: reduce)",
+      },
+      (context) => {
+        const { isDesktop, reduceMotion } = context.conditions;
+        const path = select("[data-orbit-path]")[0];
+        const traveler = select("[data-orbit-traveler]")[0];
+        const currentNode = select(".trajectory-node--current")[0];
+        const gravityField = select("[data-gravity-field]")[0];
+
+        if (reduceMotion) {
+          gsap.set(select("[data-trajectory]"), { strokeDashoffset: 0 });
+          gsap.set(traveler, { autoAlpha: 0 });
+          return undefined;
+        }
+
+        const heroTimeline = gsap.timeline({
+          defaults: { ease: "expo.out" },
+        });
+
+        heroTimeline
+          .addLabel("launch")
+          .fromTo(
+            "[data-name-line]",
+            { yPercent: 108, rotation: 1.5 },
+            { yPercent: 0, rotation: 0, duration: 1.05, stagger: 0.075 },
+            "launch",
+          )
+          .fromTo(
+            path,
+            { strokeDashoffset: 1 },
+            { strokeDashoffset: 0, duration: 1.55, ease: "power2.inOut" },
+            "launch+=0.08",
+          )
+          .set(traveler, { autoAlpha: 1 }, "launch+=0.12")
+          .fromTo(
+            traveler,
+            {
+              motionPath: {
+                path,
+                align: path,
+                alignOrigin: [0.5, 0.5],
+                start: 0.02,
+                end: 0.02,
+              },
+            },
+            {
+              motionPath: {
+                path,
+                align: path,
+                alignOrigin: [0.5, 0.5],
+                start: 0.02,
+                end: isDesktop ? 0.43 : 0.36,
+              },
+              duration: 1.45,
+              ease: "power2.inOut",
+            },
+            "launch+=0.14",
+          )
+          .fromTo(
+            "[data-hero-detail]",
+            { autoAlpha: 0, y: 14 },
+            { autoAlpha: 1, y: 0, duration: 0.62, stagger: 0.055 },
+            "launch+=0.48",
+          )
+          .fromTo(
+            currentNode,
+            { scale: 0.4, transformOrigin: "center" },
+            { scale: 1, duration: 0.55 },
+            "launch+=1.28",
+          )
+          .to(traveler, { autoAlpha: 0, duration: 0.24 }, "launch+=1.5");
+
+        gsap.to(gravityField, {
+          yPercent: isDesktop ? 10 : 5,
+          autoAlpha: 0.4,
+          ease: "none",
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 0.5,
           },
-          "-=0.3",
-        )
-        .fromTo(
-          "[data-hero-card]",
-          { y: 30, rotate: 1.5, scale: 0.98 },
+        });
+
+        const progressLine = select(".career-route__progress")[0];
+        const marker = select(".career-route__marker")[0];
+        const route = select(".career-route")[0];
+
+        gsap.fromTo(
+          progressLine,
+          { scaleY: 0, transformOrigin: "top" },
           {
-            y: 0,
-            rotate: 0,
-            scale: 1,
-            duration: 0.7,
-            stagger: 0.08,
+            scaleY: 1,
+            ease: "none",
+            scrollTrigger: {
+              trigger: career,
+              start: "top 68%",
+              end: "bottom 38%",
+              scrub: 0.45,
+            },
           },
-          "-=0.45",
         );
 
-      const cards = gsap.utils.toArray("[data-hero-card]");
-      const floatingLayers = gsap.utils.toArray("[data-float]");
+        gsap.fromTo(
+          marker,
+          { y: 0 },
+          {
+            y: () => Math.max(0, route.offsetHeight - marker.offsetHeight),
+            ease: "none",
+            scrollTrigger: {
+              trigger: career,
+              start: "top 68%",
+              end: "bottom 38%",
+              scrub: 0.45,
+              invalidateOnRefresh: true,
+            },
+          },
+        );
 
-      floatingLayers.forEach((card, index) => {
-        const configs = [
-          { y: -10, rotate: 0.8, duration: 3.8 },
-          { y: -14, rotate: -1.6, duration: 3.2 },
-          { y: -12, rotate: 1.3, duration: 4.1 },
-          { y: 10, rotate: -0.9, duration: 3.5 },
-        ];
-        const config = configs[index] || configs[0];
-
-        gsap.to(card, {
-          y: config.y,
-          rotate: config.rotate,
-          duration: config.duration,
-          ease: "sine.inOut",
-          repeat: -1,
-          yoyo: true,
+        select(".career-entry").forEach((entry) => {
+          const body = entry.querySelector(".career-entry__body");
+          gsap.fromTo(
+            body,
+            { x: isDesktop ? 34 : 14, clipPath: "inset(0 0 0 8%)" },
+            {
+              x: 0,
+              clipPath: "inset(0 0 0 0%)",
+              duration: 0.72,
+              ease: "expo.out",
+              scrollTrigger: {
+                trigger: entry,
+                start: "top 76%",
+                toggleActions: "play none none reverse",
+                toggleClass: { targets: entry, className: "is-active" },
+              },
+            },
+          );
         });
-      });
 
-      const moveCards = (event) => {
-        const bounds = hero.getBoundingClientRect();
-        const x = ((event.clientX - bounds.left) / bounds.width - 0.5) * 20;
-        const y = ((event.clientY - bounds.top) / bounds.height - 0.5) * 20;
-
-        cards.forEach((card, index) => {
-          const factor = index === 0 ? 0.5 : index === 1 ? 0.9 : 0.7;
-          gsap.to(card, {
-            x: x * factor,
-            y: y * factor,
-            rotate: x * 0.08 * factor,
-            duration: 0.6,
-            ease: "power3.out",
-            overwrite: true,
-          });
+        select(".project-entry").forEach((entry, index) => {
+          gsap.fromTo(
+            entry,
+            {
+              x: isDesktop ? (index % 2 === 0 ? -46 : 46) : 16,
+              autoAlpha: 0.35,
+              clipPath: isDesktop ? "inset(0 5% 0 5%)" : "inset(0 0 0 5%)",
+            },
+            {
+              x: 0,
+              autoAlpha: 1,
+              clipPath: "inset(0 0% 0 0%)",
+              duration: 0.8,
+              ease: "expo.out",
+              scrollTrigger: {
+                trigger: entry,
+                start: "top 82%",
+                once: true,
+              },
+            },
+          );
         });
-      };
 
-      const resetCards = () => {
-        cards.forEach((card) => {
-          gsap.to(card, {
-            x: 0,
-            y: 0,
-            rotate: 0,
+        gsap.fromTo(
+          select(".skill-row"),
+          { clipPath: "inset(0 100% 0 0)" },
+          {
+            clipPath: "inset(0 0% 0 0)",
             duration: 0.7,
-            ease: "power3.out",
-            overwrite: true,
-          });
+            stagger: 0.09,
+            ease: "expo.out",
+            scrollTrigger: {
+              trigger: select(".skills-index")[0],
+              start: "top 78%",
+              once: true,
+            },
+          },
+        );
+
+        gsap.fromTo(
+          select(".education-grid article"),
+          { y: 24, autoAlpha: 0.4 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.72,
+            stagger: 0.1,
+            ease: "expo.out",
+            scrollTrigger: {
+              trigger: select(".education-grid")[0],
+              start: "top 78%",
+              once: true,
+            },
+          },
+        );
+
+        gsap.to(select(".contact-orbit__ring")[0], {
+          rotation: isDesktop ? 170 : 90,
+          ease: "none",
+          scrollTrigger: {
+            trigger: select(".contact-section")[0],
+            start: "top bottom",
+            end: "bottom bottom",
+            scrub: 0.6,
+          },
         });
-      };
 
-      hero.addEventListener("mousemove", moveCards);
-      hero.addEventListener("mouseleave", resetCards);
+        gsap.fromTo(
+          select(".contact-section h2")[0],
+          { clipPath: "inset(0 0 100% 0)", y: 22 },
+          {
+            clipPath: "inset(0 0 0% 0)",
+            y: 0,
+            duration: 0.85,
+            ease: "expo.out",
+            scrollTrigger: {
+              trigger: select(".contact-section")[0],
+              start: "top 62%",
+              once: true,
+            },
+          },
+        );
 
-      return () => {
-        hero.removeEventListener("mousemove", moveCards);
-        hero.removeEventListener("mouseleave", resetCards);
-      };
-    }, hero);
+        ScrollTrigger.refresh();
+        return undefined;
+      },
+      root,
+    );
 
-    return () => ctx.revert();
+    return () => media.revert();
   }, []);
 
   return (
-    <>
-      <main className="relative isolate overflow-hidden">
-        <CursorFollower />
-        <HeroBackdrop />
+    <main id="main-content" ref={mainRef}>
+      <section id="overview" className="hero" ref={heroRef}>
+        <GravityField />
+        <HeroTrajectory />
 
-        <section
-          id="overview"
-          ref={heroRef}
-          className="relative z-10 mx-auto grid max-w-6xl gap-14 px-6 pb-16 pt-32 lg:grid-cols-[1.05fr_0.95fr] lg:items-center"
-        >
-          <div className="space-y-10">
-            <div className="space-y-5">
-              <p
-                data-hero-badge
-                className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-700 shadow-soft dark:border-emerald-400/20 dark:bg-slate-900/85 dark:text-emerald-300"
-              >
-                <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                Version 5.4 · Software Engineer Portfolio
-              </p>
-              <h1
-                data-hero-title
-                className="max-w-5xl text-5xl font-semibold tracking-tight text-slate-950 dark:text-white sm:text-6xl xl:text-7xl"
-              >
-                {Array.isArray(data.profile.headline)
-                  ? data.profile.headline.map((line) => (
-                      <span key={line} className="block">
-                        {line}
-                      </span>
-                    ))
-                  : data.profile.headline}
-              </h1>
-              <p
-                data-hero-meta
-                className="max-w-3xl text-lg font-medium text-slate-700 dark:text-slate-200"
-              >
-                {data.profile.subheadline}
-              </p>
-              <div
-                data-hero-copy
-                className="flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium text-slate-500 dark:text-slate-400"
-              >
-                <span>{data.profile.title}</span>
-                <span>{data.profile.location}</span>
-              </div>
-              <p
-                data-hero-body
-                className="max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300"
-              >
-                {data.profile.intro}
-              </p>
+        <div className="hero-meta hero-meta--location" data-hero-detail>
+          <span>01°17′33″ N</span>
+          <span>103°50′00″ E</span>
+          <strong>Singapore</strong>
+        </div>
+
+        <div className="hero-name" aria-label={profile.name}>
+          {["Roger", "Wong", "Sie Yang"].map((line) => (
+            <div className="hero-name__mask" key={line}>
+              <span data-name-line aria-hidden="true">
+                {line}
+              </span>
             </div>
+          ))}
+        </div>
 
-            <div data-hero-actions className="flex flex-wrap gap-3">
-              <a
-                href={contact.resume}
-                className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
-              >
-                <Download className="h-4 w-4" aria-hidden="true" />
-                Download Resume
-              </a>
-              <a
-                href={`mailto:${contact.email}`}
-                className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-emerald-400 hover:text-emerald-700 dark:border-slate-700 dark:bg-slate-900/80 dark:text-slate-100 dark:hover:border-emerald-400 dark:hover:text-emerald-300"
-              >
-                <Mail className="h-4 w-4" aria-hidden="true" />
-                Contact Me
-              </a>
-              <a
-                href={contact.linkedin}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-transparent px-5 py-3 text-sm font-semibold text-slate-600 transition hover:text-slate-950 dark:text-slate-300 dark:hover:text-white"
-              >
-                <Linkedin className="h-4 w-4" aria-hidden="true" />
-                LinkedIn
-              </a>
-            </div>
+        <div className="hero-statement" data-hero-detail>
+          <p>{profile.subheadline}</p>
+        </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              {data.profile.metrics.map((metric) => (
-                <div
-                  key={metric.label}
-                  data-hero-metric
-                  className="rounded-[1.6rem] border border-slate-200 bg-white/75 p-5 backdrop-blur transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900/80"
-                >
-                  <p className="text-3xl font-semibold tracking-tight text-slate-950 dark:text-white">
-                    {metric.value}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                    {metric.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="current-position" data-hero-detail>
+          <span className="current-position__node" aria-hidden="true" />
+          <p>
+            <strong>Athena Dynamics</strong>
+            <span>Singapore · 2026—Now</span>
+          </p>
+        </div>
 
-          <div className="relative hidden min-h-[34rem] lg:block">
-            <div className="absolute inset-x-8 top-8 h-48 rounded-full bg-emerald-300/30 blur-3xl dark:bg-emerald-500/20" />
-            <div className="absolute inset-x-12 bottom-6 h-40 rounded-full bg-sky-300/25 blur-3xl dark:bg-sky-500/15" />
-
-            <div className="relative mx-auto max-w-[34rem]">
-              <div data-hero-card>
-                <div
-                  data-float
-                  className="rounded-[2.25rem] border border-white/70 bg-white/80 p-7 shadow-[0_30px_80px_rgba(15,23,42,0.16)] backdrop-blur dark:border-slate-800 dark:bg-slate-900/80"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                        Current focus
-                      </p>
-                      <h2 className="mt-3 text-2xl font-semibold text-slate-950 dark:text-white">
-                        Engineering for fintech, banking, and internal platforms
-                      </h2>
-                    </div>
-                    <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
-                      <ShieldCheck className="h-6 w-6" aria-hidden="true" />
-                    </div>
-                  </div>
-
-                  <div className="mt-6 grid gap-4">
-                    {data.profile.focus.map((item) => (
-                      <div
-                        key={item}
-                        className="rounded-2xl border border-slate-200 bg-slate-50/90 px-4 py-4 text-sm leading-6 text-slate-700 dark:border-slate-800 dark:bg-slate-950/80 dark:text-slate-200"
-                      >
-                        {item}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div data-hero-card className="absolute -left-6 top-10 w-56">
-                <div
-                  data-float
-                  className="rounded-[1.8rem] border border-slate-200 bg-white/90 p-5 shadow-xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/90"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-2xl bg-slate-950 p-3 text-white dark:bg-white dark:text-slate-950">
-                      <BriefcaseBusiness
-                        className="h-5 w-5"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                        Production
-                      </p>
-                      <p className="mt-1 text-sm font-semibold text-slate-950 dark:text-white">
-                        FSMOne + UK digital banking
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div data-hero-card className="absolute -right-4 top-28 w-60">
-                <div
-                  data-float
-                  className="rounded-[1.8rem] border border-slate-200 bg-slate-950 p-5 text-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-300">
-                    Core stack
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {["Flutter", "Spring Boot", "Angular", "AWS"].map(
-                      (item) => (
-                        <span
-                          key={item}
-                          className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-white"
-                        >
-                          {item}
-                        </span>
-                      ),
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div data-hero-card className="absolute bottom-5 left-8 w-60">
-                <div
-                  data-float
-                  className="rounded-[1.8rem] border border-emerald-200 bg-emerald-50/95 p-5 shadow-xl backdrop-blur dark:border-emerald-400/20 dark:bg-emerald-500/10"
-                >
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:text-emerald-300">
-                    Delivery profile
-                  </p>
-                  <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-100">
-                    Mobile, backend, dashboards, APIs, deployment flows, and the
-                    coordination needed to ship them.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-6 pb-10">
-          <Reveal className="overflow-hidden rounded-full border border-slate-200 bg-white/80 py-4 shadow-soft dark:border-slate-800 dark:bg-slate-900/80">
-            <div className="marquee-track">
-              {[...marqueeItems, ...marqueeItems].map((item, index) => (
-                <span
-                  key={`${item}-${index}`}
-                  className="mx-4 inline-flex items-center gap-4 text-sm font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-300"
-                >
-                  <Cpu
-                    className="h-4 w-4 text-emerald-500"
-                    aria-hidden="true"
-                  />
-                  {item}
-                </span>
-              ))}
-            </div>
-          </Reveal>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-6 pb-8">
-          <Reveal className="grid gap-5 md:grid-cols-3">
-            {data.strengths.map((item) => (
-              <article
-                key={item.title}
-                className="relative overflow-hidden rounded-[1.9rem] border border-slate-200 bg-white/85 p-6 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900/85"
-              >
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-sky-400 to-slate-900 dark:to-white" />
-                <h3 className="text-lg font-semibold text-slate-950 dark:text-white">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                  {item.description}
-                </p>
-              </article>
+        <div className="hero-focus" data-hero-detail>
+          <p className="measure-label">Current focus</p>
+          <ol>
+            {profile.focus.map((item, index) => (
+              <li key={item}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                {item}
+              </li>
             ))}
-          </Reveal>
-        </section>
+          </ol>
+        </div>
 
-        <section id="experience" className="relative mx-auto max-w-6xl px-6 py-16">
-          <SectionStars />
-          <Reveal>
-            <SectionHeading
-              eyebrow="Experience"
-              title="Built around real systems, regulated workflows, and product delivery pressure."
-              body="The portfolio is now organized around shipped work. The strongest signal is not the number of tools used, but the kinds of systems delivered and the constraints they had to satisfy."
-            />
-          </Reveal>
-          <div className="mt-10 space-y-6">
+        <div className="hero-actions" data-hero-detail>
+          <TextLink href={profile.contact.resume} download>
+            Download résumé
+          </TextLink>
+          <TextLink href={`mailto:${profile.contact.email}`}>Start a conversation</TextLink>
+        </div>
+
+        <a className="hero-scroll" href="#experience" data-hero-detail>
+          Follow the trajectory
+          <ArrowDownRight aria-hidden="true" />
+        </a>
+      </section>
+
+      <section id="experience" className="career-section" ref={careerRef}>
+        <header className="section-intro">
+          <h2>Career trajectory</h2>
+          <p>
+            From production mobile systems and fintech infrastructure to AI-assisted
+            compliance—each role added another layer of system ownership.
+          </p>
+        </header>
+
+        <div className="career-layout">
+          <div className="career-route" aria-hidden="true">
+            <span className="career-route__base" />
+            <span className="career-route__progress" />
+            <span className="career-route__marker" />
+          </div>
+
+          <div className="career-list">
             {data.experiences.map((experience, index) => (
-              <Reveal
-                key={`${experience.company}-${experience.role}`}
-                className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-white/90 p-7 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900/90"
-              >
-                <div className="absolute inset-y-6 left-0 w-1 rounded-r-full bg-gradient-to-b from-emerald-400 via-sky-400 to-transparent" />
-                <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-                  <div className="space-y-5 pl-2 lg:pl-4">
-                    <div className="flex items-center gap-3">
-                      <span className="inline-flex h-11 min-w-11 items-center justify-center rounded-2xl bg-slate-950 text-sm font-semibold text-white dark:bg-white dark:text-slate-950">
-                        0{index + 1}
-                      </span>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                          {experience.period}
-                        </p>
-                        <p className="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
-                          {experience.location}
-                        </p>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-semibold text-slate-950 dark:text-white">
-                        {experience.role}
-                      </h3>
-                      <p className="mt-2 text-base font-medium text-slate-600 dark:text-slate-300">
-                        {experience.company}
-                      </p>
-                      <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                        {experience.summary}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {experience.stack.map((item) => (
-                        <span
-                          key={item}
-                          className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300"
-                        >
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <ul className="grid gap-3 border-l border-slate-200 pl-5 dark:border-slate-800">
-                    {experience.achievements.map((item) => (
-                      <li
-                        key={item}
-                        className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 px-5 py-4 text-sm leading-7 text-slate-700 dark:border-slate-800 dark:bg-slate-950/70 dark:text-slate-200"
-                      >
-                        {item}
-                      </li>
+              <article className="career-entry" key={`${experience.company}-${experience.period}`}>
+                <div className="career-entry__index" aria-hidden="true">
+                  {String(data.experiences.length - index).padStart(2, "0")}
+                </div>
+                <div className="career-entry__time">
+                  <span>{experience.period}</span>
+                  <span>{experience.location}</span>
+                </div>
+                <div className="career-entry__body">
+                  <h3>{experience.role}</h3>
+                  <p className="career-entry__company">{experience.company}</p>
+                  <p className="career-entry__summary">{experience.summary}</p>
+                  <ul>
+                    {experience.achievements.map((achievement) => (
+                      <li key={achievement}>{achievement}</li>
                     ))}
                   </ul>
+                  <p className="career-entry__stack">{experience.stack.join(" · ")}</p>
                 </div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-
-        <section id="projects" className="relative mx-auto max-w-6xl px-6 py-16">
-          <SectionStars />
-          <Reveal>
-            <SectionHeading
-              eyebrow="Projects"
-              title="Selected projects with cleaner context and clearer signal."
-              body="This section stays concise: what the project was, what I contributed, and why the work mattered."
-            />
-          </Reveal>
-          <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {data.projects.map((project) => (
-              <Reveal
-                key={project.title}
-                className="group relative flex h-full flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-7 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
-              >
-                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-sky-400 to-slate-950 dark:to-white" />
-                <div className="flex flex-1 flex-col">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                      Project
-                    </p>
-                    <h3 className="mt-3 text-2xl font-semibold text-slate-950 dark:text-white">
-                      {project.title}
-                    </h3>
-                    <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                      {project.summary}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 space-y-5">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                        Role
-                      </p>
-                      <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-200">
-                        {project.role}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                        Impact
-                      </p>
-                      <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-200">
-                        {project.impact}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {project.technologies.map((item) => (
-                      <span
-                        key={item}
-                        className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-slate-600 dark:border-slate-700 dark:text-slate-300"
-                      >
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-8 flex flex-wrap gap-3 border-t border-slate-200 pt-5 dark:border-slate-800">
-                    {project.links.map((link) => (
-                      <a
-                        key={link.href}
-                        href={link.href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700 transition hover:text-emerald-700 dark:text-slate-100 dark:hover:text-emerald-300"
-                      >
-                        {link.label}
-                        <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-
-        <section id="skills" className="relative mx-auto max-w-6xl px-6 py-16">
-          <SectionStars />
-          <Reveal>
-            <SectionHeading
-              eyebrow="Skills"
-              title="A stack shaped by delivery across mobile, backend, infrastructure, and operations."
-              body="This is not a keyword dump. It reflects the technologies that show up repeatedly in shipped work across apps, APIs, cloud services, and release management."
-            />
-          </Reveal>
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            {data.skillGroups.map((group) => (
-              <Reveal
-                key={group.title}
-                className="rounded-[2rem] border border-slate-200 bg-white/85 p-6 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900/85"
-              >
-                <h3 className="text-lg font-semibold text-slate-950 dark:text-white">
-                  {group.title}
-                </h3>
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {group.items.map((item) => (
-                    <span
-                      key={item}
-                      className="rounded-full bg-slate-100 px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-200 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-
-        <section id="education" className="mx-auto max-w-6xl px-6 py-16">
-          <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-            <Reveal className="rounded-[2rem] border border-slate-200 bg-white/85 p-7 shadow-soft dark:border-slate-800 dark:bg-slate-900/85">
-              <SectionHeading
-                eyebrow="Education"
-                title="Academic grounding backed by practical product work."
-                body="The resume shows strong academic performance, but the portfolio keeps the emphasis on how those fundamentals translated into shipped systems and team execution."
-              />
-            </Reveal>
-            <Reveal className="grid gap-6">
-              {data.education.map((item) => (
-                <article
-                  key={item.school}
-                  className="rounded-[2rem] border border-slate-200 bg-white/85 p-7 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900/85"
-                >
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <div className="mb-4 inline-flex rounded-2xl bg-slate-100 p-3 text-slate-700 dark:bg-slate-950 dark:text-slate-200">
-                        <GraduationCap className="h-5 w-5" aria-hidden="true" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-slate-950 dark:text-white">
-                        {item.school}
-                      </h3>
-                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                        {item.degree}
-                      </p>
-                    </div>
-                    <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-                      {item.period}
-                    </p>
-                  </div>
-                  <p className="mt-4 text-sm leading-7 text-slate-700 dark:text-slate-200">
-                    {item.detail}
-                  </p>
-                </article>
-              ))}
-              <article className="rounded-[2rem] border border-emerald-200 bg-emerald-50/70 p-7 shadow-soft dark:border-emerald-400/20 dark:bg-emerald-500/10">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-700 dark:text-emerald-300">
-                  Leadership
-                </p>
-                <h3 className="mt-3 text-xl font-semibold text-slate-950 dark:text-white">
-                  {data.leadership.title}
-                </h3>
-                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                  {data.leadership.org} · {data.leadership.period}
-                </p>
-                <p className="mt-4 text-sm leading-7 text-slate-700 dark:text-slate-200">
-                  {data.leadership.description}
-                </p>
               </article>
-            </Reveal>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section id="contact" className="mx-auto max-w-6xl px-6 pb-24 pt-16">
-          <Reveal className="rounded-[2.25rem] border border-slate-200 bg-slate-950 px-8 py-10 text-white shadow-[0_35px_90px_rgba(15,23,42,0.28)] dark:border-slate-800">
-            <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-3xl space-y-5">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-300">
-                  Contact
-                </p>
-                <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                  Open to software engineering roles where product quality and
-                  execution matter.
-                </h2>
-                <p className="text-base leading-7 text-slate-300">
-                  I am most relevant to teams building fintech, digital banking,
-                  backend platforms, or mobile products that need disciplined
-                  engineering and reliable delivery.
-                </p>
+      <section id="projects" className="projects-section">
+        <header className="section-intro section-intro--split">
+          <h2>Selected systems</h2>
+          <p>
+            Three builds that show how I move between infrastructure, product
+            experience, and domain-specific workflows.
+          </p>
+        </header>
+
+        <div className="project-ledger">
+          {data.projects.map((project, index) => (
+            <article className="project-entry" key={project.title}>
+              <div className="project-entry__number" aria-hidden="true">
+                {String(index + 1).padStart(2, "0")}
               </div>
-              <div className="grid gap-3 sm:min-w-[18rem]">
-                <a
-                  href={`mailto:${contact.email}`}
-                  className="inline-flex items-center justify-between rounded-2xl bg-white px-5 py-4 text-sm font-semibold text-slate-950 transition hover:-translate-y-0.5 hover:bg-emerald-100"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <Mail className="h-4 w-4" aria-hidden="true" />
-                    {contact.email}
-                  </span>
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </a>
-                <a
-                  href={contact.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-between rounded-2xl border border-slate-700 px-5 py-4 text-sm font-semibold text-white transition hover:border-emerald-400 hover:text-emerald-300"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <Linkedin className="h-4 w-4" aria-hidden="true" />
-                    LinkedIn
-                  </span>
-                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                </a>
-                {/* <a
-                  href={contact.portfolio}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-between rounded-2xl border border-slate-700 px-5 py-4 text-sm font-semibold text-white transition hover:border-emerald-400 hover:text-emerald-300"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <Building2 className="h-4 w-4" aria-hidden="true" />
-                    Live Portfolio
-                  </span>
-                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                </a> */}
-                <a
-                  href={contact.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-between rounded-2xl border border-slate-700 px-5 py-4 text-sm font-semibold text-white transition hover:border-emerald-400 hover:text-emerald-300"
-                >
-                  <span className="inline-flex items-center gap-2">
-                    <Github className="h-4 w-4" aria-hidden="true" />
-                    GitHub
-                  </span>
-                  <ExternalLink className="h-4 w-4" aria-hidden="true" />
-                </a>
+              <div className="project-entry__title">
+                <h3>{project.title}</h3>
+                <p>{project.role}</p>
               </div>
+              <div className="project-entry__detail">
+                <p>{project.summary}</p>
+                <p className="project-entry__impact">{project.impact}</p>
+                <p className="project-entry__tech">{project.technologies.join(" · ")}</p>
+              </div>
+              <div className="project-entry__links">
+                {project.links.map((link) => (
+                  <TextLink key={link.href} href={link.href} external>
+                    {link.label}
+                  </TextLink>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="skills" className="skills-section">
+        <div className="skills-statement">
+          <h2>I work across the whole path from interface to infrastructure.</h2>
+          <p>
+            The tools change with the problem. The constant is ownership: understanding
+            the workflow, building the system, and carrying it into production.
+          </p>
+        </div>
+        <div className="skills-index">
+          {data.skillGroups.map((group) => (
+            <div className="skill-row" key={group.title}>
+              <h3>{group.title}</h3>
+              <p>{group.items.join(" / ")}</p>
             </div>
-          </Reveal>
-        </section>
-      </main>
-      <Footer name={data.profile.name} versionLabel="GPT-5.4 revamp edition" />
-    </>
+          ))}
+        </div>
+      </section>
+
+      <section id="education" className="education-section">
+        <h2>Education and leadership</h2>
+        <div className="education-grid">
+          <div className="education-list">
+            {data.education.map((item) => (
+              <article key={item.school}>
+                <p className="measure-label">{item.period}</p>
+                <h3>{item.degree}</h3>
+                <p>{item.school}</p>
+                <strong>{item.detail}</strong>
+              </article>
+            ))}
+          </div>
+          <article className="leadership-note">
+            <p className="measure-label">{data.leadership.period}</p>
+            <h3>{data.leadership.title}</h3>
+            <p>{data.leadership.org}</p>
+            <p>{data.leadership.description}</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="contact" className="contact-section">
+        <p className="contact-orbit" aria-hidden="true">
+          <span className="contact-orbit__ring" />
+          <span className="contact-orbit__label">Open to the next meaningful system</span>
+        </p>
+        <h2>Let’s build what comes next.</h2>
+        <p>
+          If my experience fits the role you are hiring for, I would be glad to hear
+          about the team, the system, and the problem you are solving.
+        </p>
+        <div className="contact-actions">
+          <a href={`mailto:${profile.contact.email}`}>
+            <Mail aria-hidden="true" />
+            {profile.contact.email}
+          </a>
+          <a href={profile.contact.linkedin} target="_blank" rel="noreferrer">
+            <Linkedin aria-hidden="true" />
+            LinkedIn
+          </a>
+          <a href={profile.contact.github} target="_blank" rel="noreferrer">
+            <Github aria-hidden="true" />
+            GitHub
+          </a>
+          <a href={profile.contact.resume} download>
+            <Download aria-hidden="true" />
+            Résumé
+          </a>
+        </div>
+        <footer>
+          <span>© 2026 {profile.name}</span>
+          <a href="#overview">Return to orbit ↑</a>
+        </footer>
+      </section>
+    </main>
   );
 }
